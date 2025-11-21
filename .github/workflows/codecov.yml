@@ -1,0 +1,35 @@
+name: "Code Coverage"
+
+on:
+  workflow_call:
+    secrets:
+      CODECOV_TOKEN:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  coverage:
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # pin@v4
+      - uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # pin@v5
+        with:
+          go-version: '1.24'
+          check-latest: true
+      - name: Run test coverage
+        run: |
+          if make -n coverage &>/dev/null; then
+            echo "Running coverage through make"
+            make coverage
+          else
+            echo "No Makefile coverage target, using default behavior"
+            go test -coverprofile=coverage.out ./...
+          fi
+      - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # pin@v4
+        with:
+          files: coverage.out
+          token: ${{ secrets.CODECOV_TOKEN }}
