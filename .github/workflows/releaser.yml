@@ -48,7 +48,7 @@ jobs:
     steps:
       - name: Common Setup
         id: common_setup
-        uses: ansipixels/workflows/.github/actions/common_setup@${{ github.head_ref || github.ref_name }}
+        uses: ansipixels/workflows/.github/actions/common_setup@main
         with:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
       - name: Available platforms
