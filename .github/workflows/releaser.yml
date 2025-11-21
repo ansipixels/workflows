@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  workflow_call:
+    inputs:
+      description:
+        description: 'Description of the project for the goreleaser tap'
+        required: false
+        type: string
+        default: ''
+      binary_name:
+        description: 'Name of the binary to be released'
+        required: false
+        type: string
+        default: ${{ github.event.repository.name }}
+      main_path:
+        description: 'Path to the binary main package, eg ./cmd/foo'
+        required: false
+        type: string
+        default: "."
+      dockerfile:
+        description: 'Path to the Dockerfile to be used for the release (for multi binary projects)'
+        required: false
+        type: string
+        default: "./Dockerfile"
+    secrets:
+      GH_PAT:
+        required: true
+  push:
+    tags:
+      # so a vX.Y.Z-test1 doesn't trigger build
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-pre[0-9]*'
+      - 'v[0-9]+.[0-9]+.[0-9]+\+'
+  pull_request:
+    # To test
+    branches: [ main ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    steps:
+      - name: Common Setup
+        id: common_setup
+        uses: ansipixels/workflows/.github/actions/common_setup@main # change back to @main after testing changes in a branch
+        with:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+      - name: Available platforms
+        run: |
+          echo "Platforms found: ${{ steps.common_setup.outputs.platforms }}"
+      - name: Set up Go
+        uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # pin@v5
+        with:
+          go-version: '1.24'
+          check-latest: true
+      - name: Download goreleaser config
+        run: curl -fsS -o .goreleaser.yaml https://raw.githubusercontent.com/ansipixels/workflows/main/goreleaser.yaml # same use branch for testing instead of main in #38
+      - name: "GoReleaser Action"
+        uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # pin@v6
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          TAP_DESCRIPTION: ${{ inputs.description }}
+          GOWORK: off
+          BINARY_NAME: ${{ inputs.binary_name }}
+          MAIN_PATH: ${{ inputs.main_path }}
+          DOCKERFILE: ${{ inputs.dockerfile }}

@@ -1,0 +1,101 @@
+version: 2
+
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    main: "{{ .Env.MAIN_PATH }}"
+    binary: "{{ .Env.BINARY_NAME }}"
+checksum:
+  name_template: "checksums_{{ .Env.BINARY_NAME }}.txt"
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+gomod:
+  proxy: true
+  mod: mod
+archives:
+  - format_overrides:
+    - goos: windows
+      format: zip
+    - goos: darwin
+      format: zip
+    name_template: "{{ .Env.BINARY_NAME }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"  # Use the custom binary name for the archive
+dockers:
+  - image_templates: ["ghcr.io/ansipixels/{{ .Env.BINARY_NAME }}:{{ .Version }}-amd64"]
+    dockerfile: "{{ .Env.DOCKERFILE }}"
+    use: buildx
+    goarch: amd64
+    build_flag_templates:
+    - --platform=linux/amd64
+  - image_templates: ["ghcr.io/ansipixels/{{ .Env.BINARY_NAME }}:{{ .Version }}-arm64"]
+    dockerfile: "{{ .Env.DOCKERFILE }}"
+    use: buildx
+    goarch: arm64
+    build_flag_templates:
+    - --platform=linux/arm64
+docker_manifests:
+-
+  name_template: ghcr.io/ansipixels/{{ .Env.BINARY_NAME }}:{{ .Version }}
+  image_templates:
+  - ghcr.io/ansipixels/{{ .Env.BINARY_NAME }}:{{ .Version }}-amd64
+  - ghcr.io/ansipixels/{{ .Env.BINARY_NAME }}:{{ .Version }}-arm64
+-
+  name_template: ghcr.io/ansipixels/{{ .Env.BINARY_NAME }}:latest
+  image_templates:
+  - ghcr.io/ansipixels/{{ .Env.BINARY_NAME }}:{{ .Version }}-amd64
+  - ghcr.io/ansipixels/{{ .Env.BINARY_NAME }}:{{ .Version }}-arm64
+release:
+  prerelease: auto
+  mode: append
+brews:
+  -
+    # GitHub/GitLab repository to push the formula to
+    repository:
+      owner: ansipixels
+      name: homebrew-tap
+
+    # Git author used to commit to the repository.
+    # Defaults are shown.
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
+
+    # The project name and current git tag are used in the format string.
+    commit_msg_template: "Brew formula update for {{ .Env.BINARY_NAME }} version {{ .Tag }}"
+
+    # Folder inside the repository to put the formula.
+    # Default is the root folder.
+    directory: Formula
+
+    # Your app's homepage.
+    # Default is empty.
+    homepage: "https://github.com/ansipixels"
+
+    # Template of your app's description.
+    # Default is empty.
+    description: "{{ .Env.TAP_DESCRIPTION }}"
+
+    # Fix the name to match the binary.
+    name: "{{ .Env.BINARY_NAME }}"
+
+    # SPDX identifier of your app's license.
+    # Default is empty.
+    license: "Apache-2.0"
+
+    # So you can `brew test` your formula.
+    # Default is empty.
+    test: |
+      assert_match version.to_s, shell_output("#{bin}/{{ .Env.BINARY_NAME }} -version")
