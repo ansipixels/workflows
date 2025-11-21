@@ -33,6 +33,9 @@ cd "$REPO_NAME"
 # shellcheck disable=SC2046
 $SED  -i -e "s/NAME/$REPO_NAME/g" -e "s/DESCRIPTION/$REPO_DESC/g" $(git ls-files)
 
+# Rename cli/NAME.go to cli/REPO_NAME.go
+git mv "cli/NAME.go" "cli/$REPO_NAME.go"
+
 # Get the dependencies
 go mod tidy
 
