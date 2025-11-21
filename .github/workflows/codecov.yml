@@ -12,6 +12,8 @@ on:
 jobs:
   coverage:
     runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # pin@v4
       - uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # pin@v5
