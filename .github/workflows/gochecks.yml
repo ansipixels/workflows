@@ -31,7 +31,11 @@ jobs:
           govulncheck ./...
       - name: Download linter config
         if: matrix.os == 'ubuntu-latest'
-        run: curl -fsS -o .golangci.yml https://raw.githubusercontent.com/ansipixels/workflows/main/golangci.yml
+        run: |
+          # Use the branch from the PR or the current branch, fallback to main
+          BRANCH="${{ github.head_ref || github.ref_name }}"
+          curl -fsS -o .golangci.yml "https://raw.githubusercontent.com/ansipixels/workflows/${BRANCH}/golangci.yml" || \
+          curl -fsS -o .golangci.yml https://raw.githubusercontent.com/ansipixels/workflows/main/golangci.yml
       - name: Run golangci-lint
         if: matrix.os == 'ubuntu-latest'
         uses: golangci/golangci-lint-action@0a35821d5c230e903fcfe077583637dea1b27b47 # pin@v8

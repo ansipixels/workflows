@@ -48,7 +48,7 @@ jobs:
     steps:
       - name: Common Setup
         id: common_setup
-        uses: ansipixels/workflows/.github/actions/common_setup@main # change back to @main after testing changes in a branch
+        uses: ansipixels/workflows/.github/actions/common_setup@${{ github.head_ref || github.ref_name }}
         with:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
       - name: Available platforms
@@ -60,7 +60,11 @@ jobs:
           go-version: '1.24'
           check-latest: true
       - name: Download goreleaser config
-        run: curl -fsS -o .goreleaser.yaml https://raw.githubusercontent.com/ansipixels/workflows/main/goreleaser.yaml # same use branch for testing instead of main in #38
+        run: |
+          # Use the branch from the PR or the current branch, fallback to main
+          BRANCH="${{ github.head_ref || github.ref_name }}"
+          curl -fsS -o .goreleaser.yaml "https://raw.githubusercontent.com/ansipixels/workflows/${BRANCH}/goreleaser.yaml" || \
+          curl -fsS -o .goreleaser.yaml https://raw.githubusercontent.com/ansipixels/workflows/main/goreleaser.yaml
       - name: "GoReleaser Action"
         uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # pin@v6
         if: startsWith(github.ref, 'refs/tags/')
