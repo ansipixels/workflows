@@ -46,9 +46,15 @@ jobs:
       contents: write
       packages: write
     steps:
+      - name: Checkout workflows repository
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # pin@v4
+        with:
+          repository: ansipixels/workflows
+          path: .github-workflows-repo
+          ref: main
       - name: Common Setup
         id: common_setup
-        uses: ansipixels/workflows/.github/actions/common_setup@main
+        uses: ./.github-workflows-repo/.github/actions/common_setup
         with:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
       - name: Available platforms
