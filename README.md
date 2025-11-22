@@ -28,6 +28,7 @@ jobs:
         uses: ansipixels/workflows/.github/workflows/codecov.yml@main
     call-codeql:
         uses: ansipixels/workflows/.github/workflows/codeql-analysis.yml@main
+        # Permissions are now optional (defined at workflow level) but recommended for clarity
         permissions:
             actions: read
             contents: read
@@ -64,6 +65,7 @@ jobs:
         uses: ansipixels/workflows/.github/workflows/codecov.yml@main
     call-codeql:
         uses: ansipixels/workflows/.github/workflows/codeql-analysis.yml@main
+        # Permissions are now optional (defined at workflow level) but recommended for clarity
         permissions:
             actions: read
             contents: read
