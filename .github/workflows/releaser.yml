@@ -48,7 +48,7 @@ jobs:
     steps:
       - name: Common Setup
         id: common_setup
-        uses: ansipixels/workflows/.github/actions/common_setup@${{ github.head_ref || github.ref_name }}
+        uses: ansipixels/workflows/.github/actions/common_setup@main
         with:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
       - name: Available platforms
@@ -61,9 +61,6 @@ jobs:
           check-latest: true
       - name: Download goreleaser config
         run: |
-          # Use the branch from the PR or the current branch, fallback to main
-          BRANCH="${{ github.head_ref || github.ref_name }}"
-          curl -fsS -o .goreleaser.yaml "https://raw.githubusercontent.com/ansipixels/workflows/${BRANCH}/goreleaser.yaml" || \
           curl -fsS -o .goreleaser.yaml https://raw.githubusercontent.com/ansipixels/workflows/main/goreleaser.yaml
       - name: "GoReleaser Action"
         uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # pin@v6
