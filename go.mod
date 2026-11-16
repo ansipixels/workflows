@@ -1,13 +1,13 @@
 module github.com/ansipixels/workflows
 
 // Just to test linters, we don't actually require anything recent here.
-go 1.25.0
+go 1.26.0
 
 // toolchain go1.22.3 // this shouldn't be necessary - see https://github.com/golang/go/issues/66175#issuecomment-2010343876
 
 require (
 	fortio.org/log v1.18.3
-	fortio.org/scli v1.19.0
+	fortio.org/scli v1.20.0
 )
 
 require (
@@ -20,5 +20,5 @@ require (
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/kortschak/goroutine v1.1.3 // indirect
 	golang.org/x/crypto/x509roots/fallback v0.0.0-20250203165127-fa5273e46196 // indirect
-	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/sys v0.50.0 // indirect
 )
